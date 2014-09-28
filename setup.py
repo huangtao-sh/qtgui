@@ -10,5 +10,5 @@ setup(
         long_description='python3 pyqt wraper',
         packages=['qtgui'],
         license='GPL',
-        requires=['pyqt3-pyqt5']
+        requires=['pyqt3_pyqt5']
         )
