@@ -1,0 +1,16 @@
+window
+    mainwindow name=mainwindow
+        windowtitle="业务测试"
+        widget
+            vbox
+                label text=[hello]
+                edit
+                    var a=text.int
+                label text=[world]
+                edit
+                    var b=text.int
+                edit
+                    var c=text.int
+                button text=[click me]
+                    connect clicked=click
+
