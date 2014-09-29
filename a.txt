@@ -1,6 +1,12 @@
 window
     mainwindow name=mainwindow
         windowtitle="业务测试"
+        menubar
+            menu text=[File]
+                action text=[open]	
+                action text=[close]        
+                action text=[ok]
+					   
         widget
             vbox
                 label text=[hello]
@@ -13,4 +19,8 @@ window
                     var c=text.int
                 button text=[click me]
                     connect clicked=click
+
+		    
+		    
+					   
 
