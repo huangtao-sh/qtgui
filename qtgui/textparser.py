@@ -1,39 +1,6 @@
 from re import compile
-from codecs import BOM_UTF8,BOM_LE,BOM_BE
-# 写文本文件，使用utf-8编码，不带BOM
-def write_file(file_name,text,encoding='utf-8'):
-    with open(file_name,'w',encoding=encoding) as fn:
-        if isinstance(text,list):
-            fn.writelines(text)
-        else:
-            fn.write(text)
-        
-BOM_CODE={
-    BOM_UTF8:'utf_8',
-    BOM_LE:'utf_16_le',
-    BOM_BE:'utf_16_be',
-    }
-    
-DEFAULT_CODES=['utf8','gbk','utf16','big5']
+from stdlib import read_file
 
-def decode_file(d):
-    for k in BOM_CODE:
-        if k==d[:len(k)]:
-            text=d[len(k):].decode(BOM_CODE[k])
-            return text.splitlines()
-    for encoding in DEFAULT_CODES:
-        try:
-            text=d.decode(encoding)
-            return text.splitlines()
-        except:
-            continue
-    raise Exception('解码失败')    
-
-# 全部读取文件，并进行解码，解码失败则触发异常
-def read_file(file_name):
-    with open(file_name,'rb')as fn:
-        return decode_file(fn.read())
-    
 class element:
     def __init__(self,tag=None,attrib=None,data=None):
         if tag:
@@ -95,7 +62,6 @@ class element:
             s.append('%s</%s>'%('    '*level,self.tag))
         else:
             s[0]+='/>'
-
         return '\n'.join(s)
 
 def sub_element(elem,tag=None,attrib=None,data=None):
