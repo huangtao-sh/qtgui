@@ -487,7 +487,7 @@ class MainWindow(Window):
     def run(cls):
         QtGui.main(cls)
  
-class MdiWindow(Window):   #主窗口
+class MdiWindow(MainWindow):   #主窗口
 
     childs={}                   #现存的子窗口    
     def create_widget(self,name):  #创建子窗口的主控件
