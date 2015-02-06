@@ -8,11 +8,10 @@ class Test(MainWindow):
 mainwindow
     widget
         hbox
-            tablewidget
-                hlabels="姓名 账户"
+            treewidget
+                labels="姓名 账户"
                 columnwidths=[100,60]
-                var tab=data
-                signal itemclicked=tb1click
+                var twdata=data
             form
                 tablewidget name=tw
                     rowcount=5
@@ -29,10 +28,12 @@ mainwindow
         self['tab2']=[['huangtao','Youku'],
                       ['zhangsan','fsdljl'],]
     def click(self,item):
-        self['tab']=['asfd fsd'.split(),
-                     'sfdafsd  sfda'.split(),
-                     'sfdawe fsda'.split()]
-        print(self['tab'])
+        d=[{'text':'fads sfd'.split(),'icon':'up.png',
+            'childs':[
+            {'text':'halo fsd'.split(),},
+            {'text':'youku dfs'.split()} ]},
+           {'text':'sfda sfda'.split(),}]
+        self['twdata']=d
 
     def tb1click(self,item):
         s=item.tableWidget().item(item.row(),0).text()

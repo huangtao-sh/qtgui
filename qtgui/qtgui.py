@@ -38,6 +38,29 @@ except:
     from PyQt4.QtCore import *
 from .textparser import parser
 
+class MTreeWidget(QTreeWidget):
+    def setColumnWidths(self,*widths):
+        if self.columnCount!=len(widths):
+            self.setColumnCount(len(widths))
+        for i,width in enumerate(widths):
+            self.setColumnWidth(i,width)
+
+    def setLabels(self,labels):
+        lbls=labels.split()
+        if self.columnCount!=len(lbls):
+            self.setColumnCount(len(lbls))
+        self.setHeaderLabels(lbls)
+
+    def setData(self,data):
+        def proc_child(owner,data):
+            for d in data:
+                item=QTreeWidgetItem(owner,d['text'])
+                if 'childs' in d:
+                    proc_child(item,d['childs'])
+                if 'icon' in d:
+                    item.setIcon(0,QIcon(d['icon']))
+        proc_child(self,data)
+            
 
 class MTableWidget(QTableWidget):
     def setColumnWidths(self,*widths):
@@ -143,6 +166,7 @@ class QtGui:
             'textedit':MTextEdit,   #多行文本编辑框
             'checkboxgroup':MCheckBoxGroup,
             'tablewidget':MTableWidget,
+            'treewidget':MTreeWidget,
             }
     WIDGETS={}                      #组件缓存
     PROPERTYS={}                    #属性缓存
