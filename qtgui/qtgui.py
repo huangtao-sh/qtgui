@@ -23,6 +23,7 @@
 # 名称：QT5库函数
 # 作者：黄涛
 # 创建：2014-8-3
+# 修订：2015-2-6 增加MTreeWidget相关功能
 
 from sys import argv,exit
 from os.path import splitext,join,isfile
@@ -36,6 +37,39 @@ except:
     from PyQt4.QtGui import *
     from PyQt4.QtCore import *
 from .textparser import parser
+
+
+class MTableWidget(QTableWidget):
+    def setColumnWidths(self,*widths):
+        if self.columnCount!=len(widths):
+            self.setColumnCount(len(widths))
+        for i,width in enumerate(widths):
+            self.setColumnWidth(i,width)
+
+    def setHLabels(self,labels):
+        lbls=labels.split()
+        if self.columnCount!=len(lbls):
+            self.setColumnCount(len(lbls))
+        self.setHorizontalHeaderLabels(lbls)
+
+    def setData(self,data):
+        self.setRowCount(len(data))
+        for r,row in enumerate(data):
+            for c,col in enumerate(row):
+                self.setItem(r,c,QTableWidgetItem(col))
+                
+    def data(self):
+        d=[]
+        for r in range(self.rowCount()):
+            row=[]
+            for c in range(self.columnCount()):
+                item=self.item(r,c)
+                if item is not None:
+                    row.append(self.item(r,c).text())
+            if row:
+                d.append(row)
+        return d
+                
 
 class MCheckBoxGroup(QGroupBox):
     buttons={}
@@ -108,6 +142,7 @@ class QtGui:
             'combobox':MComboBox,   #组合框
             'textedit':MTextEdit,   #多行文本编辑框
             'checkboxgroup':MCheckBoxGroup,
+            'tablewidget':MTableWidget,
             }
     WIDGETS={}                      #组件缓存
     PROPERTYS={}                    #属性缓存
@@ -300,13 +335,15 @@ class QtGui:
             k=k.lower()
             ps=self.get_propertys(widget)
             if k=='icon':
-                v=self.create_icon(v)
+                v=(self.create_icon(v),)
             else:
                 v=eval(v)
+                if not isinstance(v,tuple):
+                    v=(v,)
             for p in ['set','add','']:
                 s=p+k
                 if s in ps:
-                    getattr(widget,ps[s])(v)
+                    getattr(widget,ps[s])(*v)
                     break
                              
         def do_connect(widget,signal,slot): #处理连接
