@@ -8,10 +8,11 @@ class Test(MainWindow):
 mainwindow
     widget
         hbox
-            treewidget
-                labels="姓名 账户"
-                columnwidths=[100,60]
-                var twdata=data
+            scrollarea
+                treewidget
+                    labels="姓名 账户"
+                    columnwidths=[100,60]
+                    var twdata=data
             form
                 tablewidget name=tw label=[label1]
                     rowcount=5
@@ -19,8 +20,9 @@ mainwindow
                     columnwidths=[100,80]
                     var tab2=data
                     signal itemclicked=tb1click
-                textbrowser label=[label3] name=edt1
-                    var ab=text
+                scrollarea
+                    textbrowser label=[label3] name=edt1
+                        var ab=text
                 button text=[click]  label=[label2]
                     signal clicked=edt1.copy
                     slot setenabled=edt1.copyavailable

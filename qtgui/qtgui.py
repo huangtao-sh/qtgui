@@ -280,6 +280,8 @@ class QtGui:
                 add_layout(head,'addWidget',widget,attrib)
             elif hasattr(head,'setCentralWidget'):
                 head.setCentralWidget(widget)
+            elif hasattr(head,'setWidget'):
+                head.setWidget(widget)
             return widget
         
         def create_layout(head,Layout,attrib):#生成布局
