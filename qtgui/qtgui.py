@@ -183,7 +183,8 @@ class QtGui:
     @classmethod
     def get_propertys(cls,widget):  #从缓存中获取属性
         ps=cls.PROPERTYS.get(widget.__class__)
-        if ps is None:
+        #本地变量强制刷新
+        if(ps is None)or('__main__' in str(widget.__class__)):
             ps=dict((x.lower(),x)for x in dir(widget))
             cls.PROPERTYS[widget.__class__]=ps 
         return ps
@@ -369,7 +370,10 @@ class QtGui:
                 if s in ps:
                     getattr(widget,ps[s])(*v)
                     break
-                             
+
+        def proc_slot(widget,slot,signal):
+            do_connect(widget,signal,slot)
+            
         def do_connect(widget,signal,slot): #处理连接
             signal=self.get_attr(signal,[widget,owner])
             slot=self.get_attr(slot,[owner,widget])
@@ -394,7 +398,8 @@ class QtGui:
                     tag=child.tag
                 attrib=child.attrib
                 func=functions.get(child.tag) #根据TAG获取处理函数
-                if func in [set_variable,set_property,do_connect]:
+                if func in [set_variable,set_property,do_connect,\
+                            proc_slot]:
                     [func(head,k,v)for k,v in attrib.items()]
                 else:
                     w=func(head,attrib) if func else create_widget(head,tag,attrib)
@@ -437,6 +442,7 @@ class QtGui:
                 'signal':do_connect,                
                 'stretch':add_stretch,
                 'connect':do_connect,
+                'slot':proc_slot,
                 }
 
         node=parser(content=text) if text else self.windows.get(name) #获取窗口资源
