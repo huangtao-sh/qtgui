@@ -169,7 +169,7 @@ class QtGui:
             'treewidget':MTreeWidget,
             }
     WIDGETS={}                      #组件缓存
-    PROPERTYS={}                    #属性缓存
+#    PROPERTYS={}                    #属性缓存
     windows={}                      #窗口缓存
     resources={}                    #资源缓存
     @classmethod
@@ -182,11 +182,11 @@ class QtGui:
     
     @classmethod
     def get_propertys(cls,widget):  #从缓存中获取属性
-        ps=cls.PROPERTYS.get(widget.__class__)
+        #ps=cls.PROPERTYS.get(widget.__class__)
         #本地变量强制刷新
-        if(ps is None)or('__main__' in str(widget.__class__)):
-            ps=dict((x.lower(),x)for x in dir(widget))
-            cls.PROPERTYS[widget.__class__]=ps 
+        #if(ps is None)or('__main__' in str(widget.__class__)):
+        ps=dict((x.lower(),x)for x in dir(widget))
+        #    cls.PROPERTYS[widget.__class__]=ps 
         return ps
         
     @staticmethod
@@ -282,6 +282,9 @@ class QtGui:
                 head.setCentralWidget(widget)
             elif hasattr(head,'setWidget'):
                 head.setWidget(widget)
+            elif hasattr(head,'addTab'):
+                label=attrib.get('label')
+                head.addTab(widget,label)
             return widget
         
         def create_layout(head,Layout,attrib):#生成布局
