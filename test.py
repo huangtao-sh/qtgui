@@ -2,6 +2,7 @@
 
 from qtgui import MainWindow
 from PyQt5.QtWidgets import *
+from qtgui.textparser import element,sub_element
 class Test(MainWindow):
 #    ui_file='a.txt'
     ui_text='''
@@ -9,7 +10,9 @@ mainwindow
     tabwidget
         widget label=[describ]
             vbox
-                textbrowser
+                treewidget
+                    labels="columna|columnB"
+                    var data=data
                 hbox
                     stretch
                     button text=[hello]
@@ -26,6 +29,12 @@ mainwindow
 '''
     def init(self):
         super().init()
+        root=element('root')
+        sub_element(root,'list1',{'text':'sfad sdfa'.split()})
+        b=sub_element(root,'list2')
+        sub_element(b,'huangao')
+        sub_element(b,'listi')
+        self['data']=root
 
     def click(self,item):
         self.showinfo("Hello world")

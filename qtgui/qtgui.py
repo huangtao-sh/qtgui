@@ -46,19 +46,21 @@ class MTreeWidget(QTreeWidget):
             self.setColumnWidth(i,width)
 
     def setLabels(self,labels):
-        lbls=labels.split()
+        lbls=labels.split("|")
         if self.columnCount!=len(lbls):
             self.setColumnCount(len(lbls))
         self.setHeaderLabels(lbls)
 
     def setData(self,data):
         def proc_child(owner,data):
-            for d in data:
-                item=QTreeWidgetItem(owner,d['text'])
-                if 'childs' in d:
-                    proc_child(item,d['childs'])
-                if 'icon' in d:
-                    item.setIcon(0,QIcon(d['icon']))
+            for child in data.childs():
+                attrib=child.attrib
+                text=attrib['text'] if 'text' in attrib else [child.tag]
+                item=QTreeWidgetItem(owner,text)
+                if 'icon' in attrib:
+                    for i,icon in enumerate(attrib['icon']):
+                        item.setIcon(i,QIcon(icon))
+                proc_child(item,child)
         proc_child(self,data)
             
 
@@ -70,7 +72,7 @@ class MTableWidget(QTableWidget):
             self.setColumnWidth(i,width)
 
     def setHLabels(self,labels):
-        lbls=labels.split()
+        lbls=labels.split("|")
         if self.columnCount!=len(lbls):
             self.setColumnCount(len(lbls))
         self.setHorizontalHeaderLabels(lbls)
