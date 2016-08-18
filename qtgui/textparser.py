@@ -1,5 +1,6 @@
 from re import compile
-from stdlib import read_file
+from orange import *
+#from stdlib import read_file
 
 class element:
     def __init__(self,tag=None,attrib=None,data=None):
@@ -68,8 +69,8 @@ def sub_element(elem,tag=None,attrib=None,data=None):
     e=element(tag,attrib,data)
     elem.append(e)
     return e
-
-def parser(file_name=None,content=None):
+'''
+def parser1(file_name=None,content=None):
     partten=compile(r'( *)(?:'
         r'([a-zA-Z_][a-zA-Z0-9_]*)\s*'
         r'(?:=\s*(".*?"'
@@ -113,4 +114,52 @@ def parser(file_name=None,content=None):
                 owner.append(node)
                 owner_count+=1
     return owner and owner[0] 
-                
+'''
+def parser(files=None,content=None):
+    partten=compile(r'( *)(?:'
+        r'([a-zA-Z_][a-zA-Z0-9_]*)\s*'
+        r'(?:=\s*(".*?"'
+        r"|'.*?'"
+        r'|\[.*?\]'
+        r'|0[xX][0-9a-fA-F]+|[+-]?\d+\.?\d*'
+        r'|[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*'
+        r'))?'
+        r')?(#.*$)?'
+        )    
+    owners=[element('root')]
+    count=0
+    lines=[]
+    if content:
+        lines.extend(content.splitlines())
+    if files:
+        [lines.extend(Path(x).lines) for x in files]
+    indent=4
+    for line in lines:
+        indent=line.count(' ')
+        if indent:
+            break
+    for line in lines:
+        t=partten.findall(line)
+        if t:
+            level,m=divmod(t[0][0].count(' '),indent)
+            ensure(m==0 or line.strip()=='','%s 缩进错误'%(line))
+            attr={}
+            tag=None
+            for r in t:
+                if r[1] and r[2]:
+                    v=r[2]
+                    if v[0]=='[':
+                        v=v[1:-1]
+                    attr[r[1]]=v
+                elif r[1]:
+                    tag=r[1]
+                if(tag is None)and attr:
+                    tag='property'
+        if tag:
+            node=sub_element(owners[level],tag,attr)
+            if level<count:
+                owners[level+1]=node
+            else:
+                owners.append(node)
+                count+=1
+    return owners[0] 

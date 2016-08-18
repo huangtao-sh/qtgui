@@ -1,8 +1,7 @@
 #!/usr/bin/python3
-from distutils.core import setup
+from orange import setup
 setup(
         name='qtgui',
-        version='0.0.1',
         author='Huang tao',
         author_email='huangtao.jh@gmail.com',
         platforms='any',

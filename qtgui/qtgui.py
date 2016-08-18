@@ -55,7 +55,8 @@ class MTreeWidget(QTreeWidget):
         def proc_child(owner,data):
             for child in data.childs():
                 attrib=child.attrib
-                text=attrib['text'] if 'text' in attrib else [child.tag]
+                text=attrib['text'] if 'text' in attrib \
+                  else [child.tag]
                 item=QTreeWidgetItem(owner,text)
                 if 'icon' in attrib:
                     for i,icon in enumerate(attrib['icon']):
@@ -117,15 +118,18 @@ class MCheckBoxGroup(QGroupBox):
         self.buttons={}
         for i,(value,label) in enumerate(items):
             button=QCheckBox(label,self)
-            self.layout.addWidget(button,i//self._columns,i%self._columns)
+            self.layout.addWidget(button,i//self._columns,
+                                  i%self._columns)
             self.buttons[button]=value
             
     def values(self):
-        return [value for button,value in self.buttons.items() if button.isChecked()]
+        return [value for button,value in self.buttons.items()\
+                if button.isChecked()]
                             
     def setValues(self,values):
         self.vals=set(values)
-        [button.setChecked(value in values) for button,value in self.buttons.items()]
+        [button.setChecked(value in values) for button,value \
+         in self.buttons.items()]
     
     def delta(self):
         new=set(self.values())
@@ -222,10 +226,10 @@ class QtGui:
             else:
                 return owner
         
-    def __init__(self,file_name=None):   #初始化函数
-        if file_name is not None:   #如果有文件名，则加载UI资源
+    def __init__(self,files=None):   #初始化函数
+        if files is not None:   #如果有文件名，则加载UI资源
             try:
-                for node in parser(file_name):
+                for node in parser(files):
                     if 'name' in node.attrib:  #缓存窗口资源
                         self.windows[node.attrib['name'].lower()]=node
                     if 'id' in node.attrib:    #缓存锚点资源
@@ -245,9 +249,12 @@ class QtGui:
     @staticmethod
     def main(Window):         #主程序，需要送一个窗口类
         app=QApplication(argv)
-        main_win=Window().widget
-        exit(app.exec_())
-
+        try:
+            win=Window()
+            exit(app.exec_())
+        finally:
+            win.do_close()
+            
     def setup_UI(self,owner,name=None,text=None,apps=None):#创建窗口
         actions={}                  #初始化actions
         actiongroups={}             #初始化actiongroups
@@ -409,7 +416,8 @@ class QtGui:
                             proc_slot]:
                     [func(head,k,v)for k,v in attrib.items()]
                 else:
-                    w=func(head,attrib) if func else create_widget(head,tag,attrib)
+                    w=func(head,attrib) if func \
+                            else create_widget(head,tag,attrib)
                     if w is not None:
                         name=attrib.get('name')
                         if name:
@@ -452,7 +460,8 @@ class QtGui:
                 'slot':proc_slot,
                 }
 
-        node=parser(content=text) if text else self.windows.get(name) #获取窗口资源
+        node=parser(content=text).childs()[0] if text\
+                else self.windows.get(name) #获取窗口资源
         if node:
             widget=create_widget(owner,node.tag,node.attrib) #生成主窗口
             if widget:
@@ -545,22 +554,30 @@ class Window():    #表单的基类
             
 class MainWindow(Window):
     ui_text=None
-    ui_file=None
+    ui_files=None
     apps=None                   #子窗口类
     def __init__(self):         #初始化函化
+        self.on_close=[]
         super().__init__()
-        self.gui=QtGui(self.ui_file)
+        self.gui=QtGui(self.ui_files)
         self.gui.setup_UI(self,name='mainwindow',text=self.ui_text,
                           apps=self.apps)
         self.init()
         self.widget.move((qApp.desktop().width()-self.widget.width())/2,
                 (qApp.desktop().height()-self.widget.height())/2)
         self.widget.show()
-
+        
     @classmethod
     def run(cls):
         QtGui.main(cls)
- 
+
+    def do_close(self):
+        for fn in self.on_close:
+            fn()
+
+    def teardown(self,fn):
+        self.on_close.append(fn)
+        
 class MdiWindow(MainWindow):   #主窗口
 
     childs={}                   #现存的子窗口    

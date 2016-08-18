@@ -1,2 +1,4 @@
 from .qtgui import QtGui,Window,MainWindow,MdiWindow
-__all__=['QtGui','Window','MdiWindow','MainWindow']
+from .textparser import element,sub_element
+__all__=['QtGui','Window','MdiWindow','MainWindow','element',
+         'sub_element']
