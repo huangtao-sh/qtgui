@@ -37,8 +37,8 @@ mainwindow
         self['data']=root
 
     def click(self,item):
-        self.showinfo("Hello world")
-
+        s=self.open_files("请选择一个文件夹",'C:\\users')
+        print(s)
 
 if __name__=='__main__':
     Test.run()

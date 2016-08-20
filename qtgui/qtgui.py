@@ -522,6 +522,28 @@ class Window():    #表单的基类
      
     def showerr(self,msg):    #弹出错误对话框
         return QMessageBox.critical(self.widget,'Error',msg)
+
+    def open_dir(self,caption,dir=None,options=QFileDialog.ShowDirsOnly):
+        return self.file_dialog('dir',caption,dir,options)
+
+    def open_file(self,caption,dir=None,filter=None,options=None):
+        result=self.file_dialog('openfile',caption,dir,filter,options)
+        return result and result[0]
+
+    def open_files(self,caption,dir=None,filter=None,options=None):
+        result=self.file_dialog('openfiles',caption,dir,filter,options)
+        return result and result[0]
+
+    def save_file(self,caption,dir=None,filter=None,options=None):
+        return self.file_dialog('savefile',caption,dir,filter,options)
+    
+    def file_dialog(self,tp,*args,**kw):
+        TYPES={'dir':QFileDialog.getExistingDirectory,
+               'openfile':QFileDialog.getOpenFileName,
+               'openfiles':QFileDialog.getOpenFileNames,
+               'savefile':QFileDialog.getSaveFileName}
+        return TYPES.get(tp,QFileDialog.getOpenFileName)\
+          (self.widget,*args,**kw)
     
     def get_open_files(self,title,init_dir=None,parttern=None): #弹出打开文件对话框
         a=QFileDialog.getOpenFileNames(self.widget,title,init_dir,parttern)
