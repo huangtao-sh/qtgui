@@ -514,14 +514,17 @@ class Window():    #表单的基类
     def init(self):              #设置初始数据
         self.update(self.initial)
         
-    def showask(self,msg):    #弹出询问对话框
-        return QMessageBox.question(self.widget,'Question',msg)
+    def showask(self,msg,caption=None):    #弹出询问对话框
+        caption=caption or 'Question'
+        return QMessageBox.question(self.widget,caption,msg)
     
-    def showinfo(self,msg):   #弹出信息对话框
-        return QMessageBox.information(self.widget,'Information',msg)
+    def showinfo(self,msg,caption=None):   #弹出信息对话框
+        caption=caption or 'Information'
+        return QMessageBox.information(self.widget,caption,msg)
      
-    def showerr(self,msg):    #弹出错误对话框
-        return QMessageBox.critical(self.widget,'Error',msg)
+    def showerr(self,msg,caption=None):    #弹出错误对话框
+        caption=caption or 'Error'
+        return QMessageBox.critical(self.widget,caption,msg)
 
     def open_dir(self,caption,dir=None,options=QFileDialog.ShowDirsOnly):
         return self.file_dialog('dir',caption,dir,options)
