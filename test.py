@@ -7,7 +7,7 @@ class Test(MainWindow):
 #    ui_file='a.txt'
     ui_text='''
 mainwindow
-    stackedwidget
+    tabwidget
         groupbox args=["world"] layout=vbox
             treewidget
                 labels="columna|columnB"

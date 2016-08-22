@@ -29,136 +29,13 @@ from sys import argv,exit
 from os.path import splitext,join,isfile
 from functools import partial
 from datetime import datetime,date,time
-try:
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtCore import *
-except:
-    from PyQt4.QtGui import *
-    from PyQt4.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from .textparser import parser
+from .widgets import *
 
-class MTreeWidget(QTreeWidget):
-    def setColumnWidths(self,*widths):
-        if self.columnCount!=len(widths):
-            self.setColumnCount(len(widths))
-        for i,width in enumerate(widths):
-            self.setColumnWidth(i,width)
-
-    def setLabels(self,labels):
-        lbls=labels.split("|")
-        if self.columnCount!=len(lbls):
-            self.setColumnCount(len(lbls))
-        self.setHeaderLabels(lbls)
-
-    def setData(self,data):
-        def proc_child(owner,data):
-            for child in data.childs():
-                attrib=child.attrib
-                text=attrib['text'] if 'text' in attrib \
-                  else [child.tag]
-                item=QTreeWidgetItem(owner,text)
-                if 'icon' in attrib:
-                    for i,icon in enumerate(attrib['icon']):
-                        item.setIcon(i,QIcon(icon))
-                proc_child(item,child)
-        proc_child(self,data)
-            
-class MTableWidget(QTableWidget):
-    def setColumnWidths(self,*widths):
-        if self.columnCount!=len(widths):
-            self.setColumnCount(len(widths))
-        for i,width in enumerate(widths):
-            self.setColumnWidth(i,width)
-
-    def setHLabels(self,labels):
-        lbls=labels.split("|")
-        if self.columnCount!=len(lbls):
-            self.setColumnCount(len(lbls))
-        self.setHorizontalHeaderLabels(lbls)
-
-    def setData(self,data):
-        self.setRowCount(len(data))
-        for r,row in enumerate(data):
-            for c,col in enumerate(row):
-                self.setItem(r,c,QTableWidgetItem(col))
-                
-    def data(self):
-        d=[]
-        for r in range(self.rowCount()):
-            row=[]
-            for c in range(self.columnCount()):
-                item=self.item(r,c)
-                if item is not None:
-                    row.append(self.item(r,c).text())
-            if row:
-                d.append(row)
-        return d
-                
-class MCheckBoxGroup(QGroupBox):
-    buttons={}
-    _columns=4
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-        self.layout=QGridLayout(self)
-        self.setLayout(self.layout)
-        self.vals=set()
-        
-    def setColumns(self,columns):
-        if columns>0:
-            self._columns=columns
-    
-    def columns(self):
-        return self._columns
-    
-    def setItems(self,items):
-        [button.close() for button in self.buttons]
-        self.buttons={}
-        for i,(value,label) in enumerate(items):
-            button=QCheckBox(label,self)
-            self.layout.addWidget(button,i//self._columns,
-                                  i%self._columns)
-            self.buttons[button]=value
-            
-    def values(self):
-        return [value for button,value in self.buttons.items()\
-                if button.isChecked()]
-                            
-    def setValues(self,values):
-        self.vals=set(values)
-        [button.setChecked(value in values) for button,value \
-         in self.buttons.items()]
-    
-    def delta(self):
-        new=set(self.values())
-        return list(self.vals-new),list(new-self.vals)
-    
-    def selectAll(self):
-        [button.setChecked(True) for button in self.buttons]
-    
-    def deSelectAll(self):
-        [button.setChecked(False) for button in self.buttons]
-        
-
-class MComboBox(QComboBox):
-    '''自定义的ComboBox类
-    新增setItems函数，便于使用Items来设置下拉菜单    
-    '''
-    def setCurrentText(self,value):
-        pass
-    def setItems(self,items):
-        self.clear()            #清理下拉菜单
-        self.addItems(items)    #新增下拉菜单
-        
-class MTextEdit(QTextEdit):
-    '''
-    自定义的多行文本编辑类
-    新增plainText方法
-    '''
-    def plainText(self):        
-        return self.toPlainText()  #获取纯文本
 # add_child的处理
-
 QFormLayout.add_child=lambda self,w,*args: self.addRow(*args,w)
 QLayout.add_child=lambda self,w,*args:self.addLayout(w,*args) if \
   isinstance(w,QLayout) else self.addWidget(w,*args)
@@ -308,7 +185,7 @@ class QtGui:
             widget=Widget(*args)             #生成控件
             add_args=eval('[%s]'%(attrib.get('addargs','')))#添加参数
             if Widget in (QWidget,QGroupBox):
-                layout=attrib.get('layout')
+                layout=attrib.get('layout','vbox')
                 if layout:
                     layout=self.get_widget(layout)()
                     widget.setLayout(layout)
@@ -690,6 +567,7 @@ class WidgetVar:  #窗口变量
             self.out_type=tp
         ps=QtGui.get_propertys(widget)
         p=ps.get(property_)
+        i=ps.get('is'+property_)
         s=ps.get('set'+property_)
         a=ps.get('add'+property_)
         if p and s:
@@ -700,6 +578,8 @@ class WidgetVar:  #窗口变量
             if p:
                 self.get_method=getattr(widget,p)
                 self.set_method=getattr(widget,p)
+            elif i:
+                self.get_method=getattr(widget,i)
             if a or s :
                 p= s or a
                 self.set_method=getattr(widget,p)
