@@ -7,25 +7,19 @@ class Test(MainWindow):
 #    ui_file='a.txt'
     ui_text='''
 mainwindow
-    tabwidget
-        widget label=[describ]
-            vbox
-                treewidget
-                    labels="columna|columnB"
-                    var data=data
-                hbox
-                    stretch
-                    button text=[hello]
-                        signal clicked=click
-        widget label=[search]
-            vbox
-                edit
-                edit
-                hbox
-                    stretch
-                    button text=[info]
-                        signal clicked=click
-       
+    stackedwidget
+        groupbox args=["world"] layout=vbox
+            treewidget
+                labels="columna|columnB"
+                var data=data
+            hbox
+                stretch
+                button args=["hello"]
+                    signal clicked=click
+        groupbox args=["new view"] layout=vbox
+            hbox
+                radio args=["Hello"] 
+                radio args=["world"] 
 '''
     def init(self):
         super().init()
@@ -37,8 +31,7 @@ mainwindow
         self['data']=root
 
     def click(self,item):
-        s=self.open_files("请选择一个文件夹",'C:\\users')
-        print(s)
+        print(self.bg)
 
 if __name__=='__main__':
     Test.run()

@@ -64,7 +64,6 @@ class MTreeWidget(QTreeWidget):
                 proc_child(item,child)
         proc_child(self,data)
             
-
 class MTableWidget(QTableWidget):
     def setColumnWidths(self,*widths):
         if self.columnCount!=len(widths):
@@ -96,7 +95,6 @@ class MTableWidget(QTableWidget):
                 d.append(row)
         return d
                 
-
 class MCheckBoxGroup(QGroupBox):
     buttons={}
     _columns=4
@@ -159,6 +157,24 @@ class MTextEdit(QTextEdit):
     '''
     def plainText(self):        
         return self.toPlainText()  #获取纯文本
+# add_child的处理
+
+QFormLayout.add_child=lambda self,w,*args: self.addRow(*args,w)
+QLayout.add_child=lambda self,w,*args:self.addLayout(w,*args) if \
+  isinstance(w,QLayout) else self.addWidget(w,*args)
+QTabWidget.add_child=lambda self,*args:self.addTab(*args)
+QStatusBar.add_child=lambda self,*args:self.addPermanentWidget(*args)
+QMainWindow.add_child=lambda self,w:self.setCentralWidget(w)
+QStackedWidget.add_child=lambda self,*args:self.addWidget(*args)
+
+def _add_child(self,widget,*args):
+    layout=self.layout()
+    if layout is None:
+        self.setLayout(widget)
+    else:
+        layout.add_child(widget,*args)
+        
+QWidget.add_child=_add_child
 
 class QtGui:
     ALIAS={                         #类型别名
@@ -173,6 +189,8 @@ class QtGui:
             'checkboxgroup':MCheckBoxGroup,
             'tablewidget':MTableWidget,
             'treewidget':MTreeWidget,
+            'radio':QRadioButton,
+            'check':QCheckBox,
             }
     WIDGETS={}                      #组件缓存
 #    PROPERTYS={}                    #属性缓存
@@ -277,29 +295,38 @@ class QtGui:
             owner.app_list=actions.copy()
                     
         def create_widget(head,tag,attrib):  #创建控件或布局
-            Widget=self.get_widget(tag)      #获取控件的类型，如失败则返回
-            if Widget is None:return     
+            Widget=self.get_widget(tag)  #获取控件的类型，如失败则返回
+            if Widget is None:return
+            '''
             if issubclass(Widget,QLayout): #布局的处理
                 return create_layout(head,Widget,attrib)
-            text=attrib.get('text')     
-            widget=Widget(text)             #生成控件
-            if hasattr(head,'addPermanentWidget'):#StatusBar控件处理
-                head.addPermanentWidget(widget)
-            elif hasattr(head,'addWidget'):  #摆放控件
-                add_layout(head,'addWidget',widget,attrib)
-            elif hasattr(head,'setCentralWidget'):
-                head.setCentralWidget(widget)
-            elif hasattr(head,'setWidget'):
-                head.setWidget(widget)
-            elif hasattr(head,'addTab'):
-                label=attrib.get('label')
-                head.addTab(widget,label)
+            '''
+            args=eval('[%s]'%(attrib.get('args','')))#创建参数
+            text=attrib.get('text')
+            if text:
+                args.insert(0,text)
+            widget=Widget(*args)             #生成控件
+            add_args=eval('[%s]'%(attrib.get('addargs','')))#添加参数
+            if Widget in (QWidget,QGroupBox):
+                layout=attrib.get('layout')
+                if layout:
+                    layout=self.get_widget(layout)()
+                    widget.setLayout(layout)
+            if hasattr(head,'add_child'):
+                head.add_child(widget,*add_args)
             return widget
-        
+        '''
         def create_layout(head,Layout,attrib):#生成布局
             layout=Layout()
             if isinstance(head,QLayout):  #摆放布局
                 add_layout(head,'addLayout',layout,attrib)
+            elif head.__class__ in (QWidget,QGroupBox):
+                add_args=eval('[%s]'%(attrib.get('addargs','')))
+                hlayout=head.layout()
+                if hlayout:
+                    hlayout.addLayout(layout,*add_args)
+                else:
+                    head.setLayout(layout)
             elif hasattr(head,'setLayout'):
                 head.setLayout(layout)
             return layout
@@ -317,7 +344,7 @@ class QtGui:
                     getattr(layout,func)(*args)
             else:#其他布局的处理
                 getattr(layout,func)(widget)
-            
+        ''' 
         def create_menubar(head,attrib):  #生成菜单栏
             menubar=QMenuBar()         #生成菜单栏
             if hasattr(head,'setMenuBar'):  #设置菜单栏
