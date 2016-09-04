@@ -1,4 +1,4 @@
-from re import compile
+from re import compile,match
 from orange import *
 #from stdlib import read_file
 
@@ -135,8 +135,9 @@ def parser(files=None,content=None):
         [lines.extend(Path(x).lines) for x in files]
     indent=4
     for line in lines:
-        indent=line.count(' ')
-        if indent:
+        ind=match('^( *?)[a-zA-Z_]',line).group(1).count(' ')
+        if ind and line.strip():
+            indent=ind
             break
     for line in lines:
         t=partten.findall(line)

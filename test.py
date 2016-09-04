@@ -5,21 +5,12 @@ from PyQt5.QtWidgets import *
 from qtgui.textparser import element,sub_element
 class Test(MainWindow):
 #    ui_file='a.txt'
-    ui_text='''
-mainwindow
-    tabwidget
-        groupbox args=["world"] layout=vbox
-            treewidget
-                labels="columna|columnB"
-                var data=data
-            hbox
-                stretch
-                button args=["hello"]
-                    signal clicked=click
-        groupbox args=["new view"] layout=vbox
-            hbox
-                radio args=["Hello"] 
-                radio args=["world"] 
+    ui_text='''widget
+    groupbox text=[hello world]
+        hbox
+            label text=[Youku]
+            button text=[afd]
+        label text=[hello world]
 '''
     def init(self):
         super().init()

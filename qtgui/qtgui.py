@@ -153,7 +153,7 @@ class QtGui:
     def setup_UI(self,owner,name=None,text=None,apps=None):#创建窗口
         actions={}                  #初始化actions
         actiongroups={}             #初始化actiongroups
-        def proc_apps(head):            #处理apps，主要是处理菜单及工具栏 
+        def proc_apps(head):        #处理apps，主要是处理菜单及工具栏 
             for app in apps:
                 name=app['class']
                 text=app.get('text','')
